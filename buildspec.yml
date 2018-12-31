@@ -21,7 +21,7 @@ phases:
       - terraform apply -auto-approve
       - npm run-script integration-tests
     finally:
-      - terraform destroy
+      - terraform destroy -auto-approve
   post_build:
     commands:
       # destroy per pr env
