@@ -2,10 +2,16 @@ version: 0.1
 phases:
   install:
     commands:
-    - env
-    - ls
-    - echo "hello world"
-    - cat foo.txt
+      - yum install terraform
+  pre_build:
+    commands:
+      - npm install
   build:
     commands:
-    - echo "bye world"
+      - npm run-script build
+      - terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - terraform apply -auto-approve
+      - npm run-script integration-tests
+  post_build:
+    commands:
+      - #terraform destroy
