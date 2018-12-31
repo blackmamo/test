@@ -32,4 +32,5 @@ phases:
       - git rev-parse master
       - export MASTER_REV=`git rev-parse master`
       - echo master rev is $MASTER_REV
+      - echo if [ "$MASTER_REV" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]
       - if [ "$MASTER_REV" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]; then echo "Promoting to QA" && (terraform workspace select QA || terraform workspace new QA) && terraform apply -auto-approve; fi
