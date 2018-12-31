@@ -27,4 +27,4 @@ phases:
   post_build:
     commands:
       # destroy per pr env
-      - if [ "`git rev-parse master`" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]; then echo "Promoting to QA" && (terraform workspace select qa || terraform workspace new qa) && terraform plan && terraform apply -auto-approve; fi
+      - if [ "`git rev-parse master`" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]; then echo "Promoting to QA" && (terraform workspace select qa || terraform workspace new qa) && terraform apply -auto-approve; fi
