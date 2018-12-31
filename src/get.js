@@ -1,7 +1,7 @@
 'use strict'
 
-var AWS = require('aws-sdk/clients/dynamodb');
-var dynamodb = new AWS.DynamoDB();
+var DynamoDB = require('aws-sdk/clients/dynamodb');
+var dynamodb = new DynamoDB();
 
 exports.handler = function(event, context, callback) {
   dynamodb.getItem(
