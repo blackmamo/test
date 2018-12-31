@@ -1,0 +1,11 @@
+version: 0.1
+phases:
+  install:
+    commands:
+    - env
+    - ls
+    - echo "hello world"
+    - cat foo.txt
+  build:
+    commands:
+    - echo "bye world"
