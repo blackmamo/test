@@ -33,7 +33,7 @@ resource "aws_api_gateway_deployment" "test_app_gateway_deployment" {
   rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
   stage_name = "test"
   // See https://github.com/hashicorp/terraform/issues/6613#issuecomment-322264393
-  stage_description = "${md5(file("buildtriggers.tf"))}"
+  stage_description = "${md5(file("test.tf"))}"
 }
 
 # IAM stuff
