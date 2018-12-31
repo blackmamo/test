@@ -2,6 +2,8 @@ version: 0.1
 phases:
   install:
     commands:
+      - git rev-parse master
+      - git status
       - sudo apt-get install unzip
       # TODO is this really safe? someone could hijack their dns and pwn us
       - wget --no-verbose https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
@@ -27,6 +29,7 @@ phases:
   post_build:
     commands:
       # destroy per pr env
+      - git rev-parse master
       - export MASTER_REV=`git rev-parse master`
       - echo master rev is $MASTER_REV
       - if [ "$MASTER_REV" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]; then echo "Promoting to QA" && (terraform workspace select QA || terraform workspace new QA) && terraform apply -auto-approve; fi
