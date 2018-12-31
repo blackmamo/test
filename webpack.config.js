@@ -31,6 +31,6 @@ module.exports = {
     publicPath: "/dist/",
     libraryTarget: 'umd',
     filename: "[name].js"
-  }
+  },
   target:"node"
 };
