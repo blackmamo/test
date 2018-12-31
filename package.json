@@ -1,0 +1,21 @@
+{
+  "name": "test",
+  "version": "0.0.1",
+  "description": "Test project for the build",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo building",
+    "integration-tests": "echo running integration tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackmamo/test.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blackmamo/test/issues"
+  },
+  "homepage": "https://github.com/blackmamo/test#readme"
+}
