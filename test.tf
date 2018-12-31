@@ -160,6 +160,11 @@ resource "aws_lambda_function" "test_app_get" {
   memory_size = 256
   timeout = 300
   runtime = "nodejs8.10"
+  environment {
+    variables = {
+      DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
+    }
+  }
 }
 
 resource "aws_lambda_permission" "test_app_lambda_permission_get" {
@@ -197,6 +202,11 @@ resource "aws_lambda_function" "test_app_delete" {
   memory_size = 256
   timeout = 300
   runtime = "nodejs8.10"
+  environment {
+    variables = {
+      DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
+    }
+  }
 }
 
 resource "aws_lambda_permission" "test_app_lambda_permission_delete" {
@@ -234,6 +244,11 @@ resource "aws_lambda_function" "test_app_upsert" {
   memory_size = 256
   timeout = 300
   runtime = "nodejs8.10"
+  environment {
+    variables = {
+      DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
+    }
+  }
 }
 
 resource "aws_lambda_permission" "test_app_lambda_permission_upsert" {

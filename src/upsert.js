@@ -1,7 +1,16 @@
 'use strict'
 
 var AWS = require('aws-sdk');
+var dynamodb = new AWS.DynamoDB();
 
 exports.handler = function(event, context, callback) {
-  callback(null, {statusCode:200,body:{op:"upsert", aok:true}})
+  dynamodb.putItem(
+    {Item: JSON.parse(event.body), TableName: process.env.DYNAMO_TABLE},
+    (err, data) => {
+      if (err) {
+        callback(new Error("Error posting to db"));
+      } else {
+        callback(null, {statusCode: 201, body: event.body});
+      }
+    });
 }
