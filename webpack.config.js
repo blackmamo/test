@@ -4,8 +4,8 @@ const webpack = require("webpack");
 module.exports = {
   entry: {
     delete: "./src/delete.js",
-    get: "./src/delete.js",
-    upsert: "./src/delete.js"
+    get: "./src/get.js",
+    upsert: "./src/upsert.js"
   },
   mode: "development",
   module: {
