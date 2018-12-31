@@ -20,6 +20,10 @@ phases:
       - terraform workspace select $CODEBUILD_RESOLVED_SOURCE_VERSION || terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
       - terraform apply -auto-approve
       - npm run-script integration-tests
+    finally:
+      - terraform destroy
   post_build:
     commands:
-      - #terraform destroy
+      # destroy per pr env
+      - export MASTER_REV=`git rev-parse origin/master`
+      - if [ "$MASTER_REV" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]; then echo "Promoting to QA" && (terraform workspace select QA || terraform workspace new QA) && terraform apply -auto-approve; fi
