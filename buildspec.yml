@@ -16,7 +16,7 @@ phases:
   build:
     commands:
       - npm run-script build
-      - terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - terraform workspace select $CODEBUILD_RESOLVED_SOURCE_VERSION || terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
       - terraform apply -auto-approve
       - npm run-script integration-tests
   post_build:
