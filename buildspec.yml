@@ -22,6 +22,7 @@ phases:
       - npm run-script integration-tests
     finally:
       - terraform destroy -auto-approve
+      - terraform workspace delete $CODEBUILD_RESOLVED_SOURCE_VERSION
   post_build:
     commands:
       # destroy per pr env
