@@ -19,6 +19,21 @@ resource "aws_s3_bucket" "test" {
   acl = "private"
 }
 
+# dynamo db
+
+resource "aws_dynamodb_table" "test_app_db" {
+  name           = "test-app-db-${terraform.workspace}"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "Id"
+
+  attribute {
+    name = "Id"
+    type = "S"
+  }
+}
+
 # Api gateway
 
 resource "aws_api_gateway_rest_api" "test_app_gateway" {
@@ -32,8 +47,8 @@ resource "aws_api_gateway_rest_api" "test_app_gateway" {
 resource "aws_api_gateway_deployment" "test_app_gateway_deployment" {
   depends_on = [
     "aws_api_gateway_integration.test_app_get_integration",
-//    "aws_api_gateway_integration.test_app_delete_integration",
-//    "aws_api_gateway_integration.test_app_upsert_integration"
+    "aws_api_gateway_integration.test_app_delete_integration",
+    "aws_api_gateway_integration.test_app_upsert_integration"
   ]
   rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
   stage_name = "test"
@@ -114,19 +129,19 @@ resource "aws_api_gateway_method" "objects_get" {
   authorization = "NONE"
 }
 
-//resource "aws_api_gateway_method" "objects_delete" {
-//  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-//  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
-//  http_method = "DELETE"
-//  authorization = "NONE"
-//}
-//
-//resource "aws_api_gateway_method" "objects_upsert" {
-//  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-//  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
-//  http_method = "POST"
-//  authorization = "NONE"
-//}
+resource "aws_api_gateway_method" "objects_delete" {
+  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
+  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
+  http_method = "DELETE"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "objects_upsert" {
+  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
+  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
+  http_method = "POST"
+  authorization = "NONE"
+}
 
 # GET
 
@@ -165,76 +180,76 @@ resource "aws_api_gateway_integration" "test_app_get_integration" {
   uri = "${aws_lambda_function.test_app_get.invoke_arn}"
 }
 
-//# DELETE
-//
-//data "archive_file" "delete_zip" {
-//  type = "zip"
-//  source_file = "dist/delete.js"
-//  output_path = "dist/delete.zip"
-//}
-//
-//resource "aws_lambda_function" "test_app_delete" {
-//  filename = "${data.archive_file.delete_zip.output_path}"
-//  function_name = "object-delete-${terraform.workspace}"
-//  role = "${aws_iam_role.test_app_lambda_role.arn}"
-//  handler = "delete.handler"
-//  source_code_hash = "${data.archive_file.delete_zip.output_base64sha256}"
-//  memory_size = 256
-//  timeout = 300
-//  runtime = "nodejs8.10"
-//}
-//
-//resource "aws_lambda_permission" "test_app_lambda_permission_delete" {
-//  statement_id = "AllowExecutionFromAPIGateway"
-//  action = "lambda:InvokeFunction"
-//  function_name = "${aws_lambda_function.test_app_delete.arn}"
-//  principal = "apigateway.amazonaws.com"
-//
-//  source_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}/*/DELETE/objects"
-//}
-//
-//resource "aws_api_gateway_integration" "test_app_delete_integration" {
-//  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-//  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
-//  http_method = "${aws_api_gateway_method.objects_delete.http_method}"
-//  integration_http_method = "DELETE"
-//  type = "AWS_PROXY"
-//  uri = "${aws_lambda_function.test_app_delete.invoke_arn}"
-//}
-//
-//# POST
-//
-//data "archive_file" "upsert_zip" {
-//  type = "zip"
-//  source_file = "dist/upsert.js"
-//  output_path = "dist/upsert.zip"
-//}
-//
-//resource "aws_lambda_function" "test_app_upsert" {
-//  filename = "${data.archive_file.upsert_zip.output_path}"
-//  function_name = "object-upsert-${terraform.workspace}"
-//  role = "${aws_iam_role.test_app_lambda_role.arn}"
-//  handler = "upsert.handler"
-//  source_code_hash = "${data.archive_file.upsert_zip.output_base64sha256}"
-//  memory_size = 256
-//  timeout = 300
-//  runtime = "nodejs8.10"
-//}
-//
-//resource "aws_lambda_permission" "test_app_lambda_permission_upsert" {
-//  statement_id = "AllowExecutionFromAPIGateway"
-//  action = "lambda:InvokeFunction"
-//  function_name = "${aws_lambda_function.test_app_upsert.arn}"
-//  principal = "apigateway.amazonaws.com"
-//
-//  source_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}/*/POST/objects"
-//}
-//
-//resource "aws_api_gateway_integration" "test_app_upsert_integration" {
-//  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-//  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
-//  http_method = "${aws_api_gateway_method.objects_upsert.http_method}"
-//  integration_http_method = "POST"
-//  type = "AWS_PROXY"
-//  uri = "${aws_lambda_function.test_app_upsert.invoke_arn}"
-//}
+# DELETE
+
+data "archive_file" "delete_zip" {
+  type = "zip"
+  source_file = "dist/delete.js"
+  output_path = "dist/delete.zip"
+}
+
+resource "aws_lambda_function" "test_app_delete" {
+  filename = "${data.archive_file.delete_zip.output_path}"
+  function_name = "object-delete-${terraform.workspace}"
+  role = "${aws_iam_role.test_app_lambda_role.arn}"
+  handler = "delete.handler"
+  source_code_hash = "${data.archive_file.delete_zip.output_base64sha256}"
+  memory_size = 256
+  timeout = 300
+  runtime = "nodejs8.10"
+}
+
+resource "aws_lambda_permission" "test_app_lambda_permission_delete" {
+  statement_id = "AllowExecutionFromAPIGateway"
+  action = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.test_app_delete.arn}"
+  principal = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}/*/DELETE/objects"
+}
+
+resource "aws_api_gateway_integration" "test_app_delete_integration" {
+  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
+  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
+  http_method = "${aws_api_gateway_method.objects_delete.http_method}"
+  integration_http_method = "DELETE"
+  type = "AWS_PROXY"
+  uri = "${aws_lambda_function.test_app_delete.invoke_arn}"
+}
+
+# POST
+
+data "archive_file" "upsert_zip" {
+  type = "zip"
+  source_file = "dist/upsert.js"
+  output_path = "dist/upsert.zip"
+}
+
+resource "aws_lambda_function" "test_app_upsert" {
+  filename = "${data.archive_file.upsert_zip.output_path}"
+  function_name = "object-upsert-${terraform.workspace}"
+  role = "${aws_iam_role.test_app_lambda_role.arn}"
+  handler = "upsert.handler"
+  source_code_hash = "${data.archive_file.upsert_zip.output_base64sha256}"
+  memory_size = 256
+  timeout = 300
+  runtime = "nodejs8.10"
+}
+
+resource "aws_lambda_permission" "test_app_lambda_permission_upsert" {
+  statement_id = "AllowExecutionFromAPIGateway"
+  action = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.test_app_upsert.arn}"
+  principal = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}/*/POST/objects"
+}
+
+resource "aws_api_gateway_integration" "test_app_upsert_integration" {
+  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
+  resource_id = "${aws_api_gateway_resource.objects_resource.id}"
+  http_method = "${aws_api_gateway_method.objects_upsert.http_method}"
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = "${aws_lambda_function.test_app_upsert.invoke_arn}"
+}
