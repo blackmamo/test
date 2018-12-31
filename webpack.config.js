@@ -29,6 +29,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist/"),
     publicPath: "/dist/",
+    libraryTarget: 'commonjs',
     filename: "[name].js"
   }
 };
