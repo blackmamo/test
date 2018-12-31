@@ -30,6 +30,11 @@ resource "aws_api_gateway_rest_api" "test_app_gateway" {
 }
 
 resource "aws_api_gateway_deployment" "test_app_gateway_deployment" {
+  depends_on = [
+    "aws_api_gateway_method.objects_get",
+    "aws_api_gateway_method.objects_delete",
+    "aws_api_gateway_method.objects_upsert"
+  ]
   rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
   stage_name = "test"
   // See https://github.com/hashicorp/terraform/issues/6613#issuecomment-322264393
@@ -148,7 +153,7 @@ resource "aws_lambda_permission" "test_app_lambda_permission_get" {
   function_name = "${aws_lambda_function.test_app_get.arn}"
   principal = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}/*/GET/objects"
+  source_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}/*/*/objects"
 }
 
 resource "aws_api_gateway_integration" "test_app_get_integration" {
