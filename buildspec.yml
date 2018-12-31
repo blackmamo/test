@@ -2,7 +2,7 @@ version: 0.1
 phases:
   install:
     commands:
-      - yum install terraform
+      - sudo apt-get install terraform
   pre_build:
     commands:
       - npm install
