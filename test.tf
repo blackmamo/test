@@ -15,6 +15,6 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "test" {
-  bucket = "${terraform.workspace}-test-bucket"
+  bucket = "sl-${terraform.workspace}-test-bucket"
   acl = "private"
 }
