@@ -16,7 +16,7 @@ module.exports = {
         loader: "babel-loader",
         options: {
           presets: ["@babel/env"],
-          plugins: [ 'source-map-support' ]
+          plugins: [ 'source-map-support', 'babel-plugin-rewire' ]
         },
       },
       {
@@ -28,7 +28,13 @@ module.exports = {
         loader: 'url-loader?limit=100000'
     }]
   },
-  resolve: { extensions: ["*", ".js", ".jsx"] },
+  resolve: {
+    modules: [
+      path.resolve('./src'),
+      path.resolve('./node_modules')
+    ],
+    extensions: ["*", ".js", ".jsx"]
+  },
   output: {
     path: path.resolve(__dirname, "dist/"),
     publicPath: "/dist/",

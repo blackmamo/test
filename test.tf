@@ -18,8 +18,16 @@ variable "aws_endpoints" {
   }
 }
 
+# Hack used with localstack, it doesn't handle iam and we don't want our local test creating
+# real permissions
+variable "manage_iam" {
+  default = true
+}
+
 provider "aws" {
   region = "${var.aws_region}"
+  # needed for terraform's s3 impl
+  s3_force_path_style = true
 
   endpoints {
     # defaults taken from https://docs.aws.amazon.com/general/latest/gr/rande.html
@@ -76,7 +84,7 @@ resource "aws_api_gateway_deployment" "test_app_gateway_deployment" {
 
 resource "aws_iam_policy" "test_app_lambda_policy" {
   name = "sl-test-app-lambda-policy-${terraform.workspace}"
-  count = 0
+  count = "${var.manage_iam}"
   path = "/"
   description = "test app lambda policy"
   policy = <<EOF
@@ -109,7 +117,7 @@ EOF
 
 resource "aws_iam_role" "test_app_lambda_role" {
   name = "sl-test-app-lambda-role-${terraform.workspace}"
-  count = 0
+  count = "${var.manage_iam}"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -127,8 +135,8 @@ resource "aws_iam_role" "test_app_lambda_role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "pr-handler-attach" {
-  count = 0
+resource "aws_iam_role_policy_attachment" "lambda-attach" {
+  count = "${var.manage_iam}"
   role = "${aws_iam_role.test_app_lambda_role.name}"
   policy_arn = "${aws_iam_policy.test_app_lambda_policy.arn}"
 }
@@ -145,7 +153,7 @@ resource "aws_api_gateway_resource" "objects_resource" {
 
 module "get_lambda" {
   source = "./terraform_modules/simple_lambda"
-  lambda_source_file = "dist/get.js"
+  lambda_source_file = "get.js"
   http_method = "GET"
   # Hack to allow us to not create iam resources with localstack
   # see https://github.com/hashicorp/terraform/issues/15281
@@ -156,13 +164,14 @@ module "get_lambda" {
   lambda_env_vars = {
     DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
   }
+  manage_iam = "${var.manage_iam}"
 }
 
 # DELETE
 
 module "delete_lambda" {
   source = "./terraform_modules/simple_lambda"
-  lambda_source_file = "dist/delete.js"
+  lambda_source_file = "delete.js"
   http_method = "DELETE"
   # Hack to allow us to not create iam resources with localstack
   # see https://github.com/hashicorp/terraform/issues/15281
@@ -173,13 +182,14 @@ module "delete_lambda" {
   lambda_env_vars = {
     DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
   }
+  manage_iam = "${var.manage_iam}"
 }
 
 # POST
 
 module "upsert_lambda" {
   source = "./terraform_modules/simple_lambda"
-  lambda_source_file = "dist/upsert.js"
+  lambda_source_file = "upsert.js"
   http_method = "POST"
   # Hack to allow us to not create iam resources with localstack
   # see https://github.com/hashicorp/terraform/issues/15281
@@ -190,6 +200,7 @@ module "upsert_lambda" {
   lambda_env_vars = {
     DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
   }
+  manage_iam = "${var.manage_iam}"
 }
 
 # OUTPUT
@@ -197,6 +208,7 @@ module "upsert_lambda" {
 # this file contains outputs that need to be used in e.g. tests to locate the endpoints to test
 
 resource "local_file" "ouput_vars" {
-  content  = "${jsonencode(map("root_url",aws_api_gateway_resource.objects_resource.path))}"
+  # Sorry - https://github.com/hashicorp/hcl/issues/211
+  content  = "${jsonencode(map("root_url", aws_api_gateway_deployment.test_app_gateway_deployment.invoke_url, "objects_path", aws_api_gateway_resource.objects_resource.path, "localstack", var.manage_iam))}"
   filename = "terraform_outputs.json"
 }

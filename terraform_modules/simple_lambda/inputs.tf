@@ -25,3 +25,7 @@ variable "api_gateway_resource_id" {
 variable "lambda_env_vars" {
   type = "map"
 }
+
+variable "manage_iam" {
+  type = "string"
+}
