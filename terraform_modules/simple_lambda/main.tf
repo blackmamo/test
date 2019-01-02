@@ -4,7 +4,7 @@ data "archive_file" "get_zip" {
   output_path = "${replace(var.lambda_source_file, ".js", ".zip")}"
 }
 
-resource "aws_lambda_function" "test_app_get" {
+resource "aws_lambda_function" "test_app_lambda" {
   filename = "${data.archive_file.get_zip.output_path}"
   function_name = "object-get-${terraform.workspace}"
   role = "${var.lambda_role_arn}"
@@ -18,16 +18,17 @@ resource "aws_lambda_function" "test_app_get" {
   }
 }
 
-resource "aws_lambda_permission" "test_app_lambda_permission_get" {
+resource "aws_lambda_permission" "test_app_lambda_permission" {
+  count = 0
   statement_id = "AllowExecutionFromAPIGateway"
   action = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.test_app_get.arn}"
+  function_name = "${aws_lambda_function.test_app_lambda.arn}"
   principal = "apigateway.amazonaws.com"
 
   source_arn = "${var.api_gateway_execution_arn}/*/${var.http_method}/objects"
 }
 
-resource "aws_api_gateway_method" "objects_get" {
+resource "aws_api_gateway_method" "objects_method" {
   rest_api_id = "${var.api_gateway_id}"
   resource_id = "${var.api_gateway_resource_id}"
   http_method = "${var.http_method}"
@@ -37,8 +38,8 @@ resource "aws_api_gateway_method" "objects_get" {
 resource "aws_api_gateway_integration" "test_app_get_integration" {
   rest_api_id = "${var.api_gateway_id}"
   resource_id = "${var.api_gateway_resource_id}"
-  http_method = "${aws_api_gateway_method.objects_get.http_method}"
+  http_method = "${aws_api_gateway_method.objects_method.http_method}"
   integration_http_method = "${var.http_method}"
   type = "AWS_PROXY"
-  uri = "${aws_lambda_function.test_app_get.invoke_arn}"
+  uri = "${aws_lambda_function.test_app_lambda.invoke_arn}"
 }
