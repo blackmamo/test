@@ -10,6 +10,7 @@ exports.handler = function(event, context, callback) {
       if (err) {
         callback(new Error("Error querying db"));
       } else {
+      console.log()
         callback(null, {statusCode: 200, body: JSON.stringify(data)});
       }
     });
