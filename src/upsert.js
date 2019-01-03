@@ -1,12 +1,16 @@
 'use strict'
 
 var DynamoDB = require('aws-sdk/clients/dynamodb');
-var dynamodb = new DynamoDB();
+var docClient = new DynamoDB.DocumentClient();
 
 exports.handler = function(event, context, callback) {
   const parsedBody = JSON.parse(event.body)
-  if (parsedBody.id) {
-    dynamodb.putItem(
+  if (!parsedBody.id) {
+    callback(null, {statusCode: 400, body: "id field is missing"});
+  } else if (!(parsedBody.id instanceof String || (typeof parsedBody.id === "string"))) {
+    callback(null, {statusCode: 400, body: "id must be a string"});
+  } else {
+    docClient.put(
       {Item: parsedBody, TableName: process.env.DYNAMO_TABLE},
       (err, data) => {
         if (err) {
@@ -15,7 +19,5 @@ exports.handler = function(event, context, callback) {
           callback(null, {statusCode: 201, body: event.body});
         }
       });
-  } else {
-    callback(null, {statusCode: 201, body: "id field is missing"});
   }
 }

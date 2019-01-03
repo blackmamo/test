@@ -38,7 +38,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist/"),
     publicPath: "/dist/",
-    libraryTarget: 'umd',
     filename: "[name].js"
   },
   target:"node"

@@ -39,7 +39,7 @@ resource "aws_api_gateway_integration" "test_app_get_integration" {
   rest_api_id = "${var.api_gateway_id}"
   resource_id = "${var.api_gateway_resource_id}"
   http_method = "${aws_api_gateway_method.objects_method.http_method}"
-  integration_http_method = "${var.http_method}"
+  integration_http_method = "POST"
   type = "AWS_PROXY"
   uri = "${aws_lambda_function.test_app_lambda.invoke_arn}"
 }

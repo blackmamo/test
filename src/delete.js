@@ -1,11 +1,11 @@
 'use strict'
 
 var DynamoDB = require('aws-sdk/clients/dynamodb');
-var dynamodb = new DynamoDB();
+var docClient = new DynamoDB.DocumentClient();
 
 exports.handler = function(event, context, callback) {
-  dynamodb.getItem(
-    {Key: {Id: event.queryStringParameters.id}, TableName: process.env.DYNAMO_TABLE, ReturnValues: true},
+  docClient.delete(
+    {Key: {id: event.queryStringParameters.id}, TableName: process.env.DYNAMO_TABLE, ReturnValues: true},
     (err, data) => {
       if (err) {
         callback(new Error("Error querying db"));

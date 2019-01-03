@@ -10,6 +10,10 @@ variable "aws_region" {
   default = "eu-west-1"
 }
 
+variable "app_name" {
+  default = "test-app"
+}
+
 variable "aws_endpoints" {
   type = "map"
   default = {
@@ -38,30 +42,40 @@ provider "aws" {
   }
 }
 
-resource "aws_s3_bucket" "test" {
-  bucket = "sl-test-app-bucket-${terraform.workspace}"
+resource "aws_s3_bucket" "bucket" {
+  bucket = "sl-${var.app_name}-bucket-${terraform.workspace}"
   acl = "private"
+
+  tags = {
+    workspace = "${terraform.workspace}"
+    appname = "${var.app_name}"
+  }
 }
 
 # dynamo db
 
-resource "aws_dynamodb_table" "test_app_db" {
-  name           = "test-app-db-${terraform.workspace}"
+resource "aws_dynamodb_table" "db" {
+  name           = "${var.app_name}-db-${terraform.workspace}"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
-  hash_key       = "Id"
+  hash_key       = "id"
 
   attribute {
-    name = "Id"
+    name = "id"
     type = "S"
+  }
+
+  tags = {
+    workspace = "${terraform.workspace}"
+    appname = "${var.app_name}"
   }
 }
 
 # Api gateway
 
-resource "aws_api_gateway_rest_api" "test_app_gateway" {
-  name = "sl-test-app-api-${terraform.workspace}"
+resource "aws_api_gateway_rest_api" "api_gateway" {
+  name = "sl-${var.app_name}-api-${terraform.workspace}"
   description = "test app api"
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -74,16 +88,18 @@ resource "aws_api_gateway_deployment" "test_app_gateway_deployment" {
     "module.delete_lambda",
     "module.upsert_lambda"
   ]
-  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
+  rest_api_id = "${aws_api_gateway_rest_api.api_gateway.id}"
   stage_name = "test"
+  // TODO try and limit the scope of the md5 hash to just those things that require
+  // a redeploy of the stage by moving them into a separate module
   // See https://github.com/hashicorp/terraform/issues/6613#issuecomment-322264393
   stage_description = "${md5(file("test.tf"))}"
 }
 
 # IAM stuff
 
-resource "aws_iam_policy" "test_app_lambda_policy" {
-  name = "sl-test-app-lambda-policy-${terraform.workspace}"
+resource "aws_iam_policy" "lambda_policy" {
+  name = "sl-${var.app_name}-lambda-policy-${terraform.workspace}"
   count = "${var.manage_iam}"
   path = "/"
   description = "test app lambda policy"
@@ -92,13 +108,21 @@ resource "aws_iam_policy" "test_app_lambda_policy" {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "Stmt1476919244000",
             "Effect": "Allow",
             "Action": [
                 "iam:PassRole"
             ],
             "Resource": [
                 "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:*"
+            ],
+            "Resource": [
+                "${aws_dynamodb_table.db.arn}"
             ]
         },
         {
@@ -115,8 +139,8 @@ resource "aws_iam_policy" "test_app_lambda_policy" {
 EOF
 }
 
-resource "aws_iam_role" "test_app_lambda_role" {
-  name = "sl-test-app-lambda-role-${terraform.workspace}"
+resource "aws_iam_role" "lambda_role" {
+  name = "sl-${var.app_name}-lambda-role-${terraform.workspace}"
   count = "${var.manage_iam}"
   assume_role_policy = <<EOF
 {
@@ -137,15 +161,15 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "lambda-attach" {
   count = "${var.manage_iam}"
-  role = "${aws_iam_role.test_app_lambda_role.name}"
-  policy_arn = "${aws_iam_policy.test_app_lambda_policy.arn}"
+  role = "${aws_iam_role.lambda_role.name}"
+  policy_arn = "${aws_iam_policy.lambda_policy.arn}"
 }
 
 # lambdas and gateway attachment
 
 resource "aws_api_gateway_resource" "objects_resource" {
-  rest_api_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-  parent_id = "${aws_api_gateway_rest_api.test_app_gateway.root_resource_id}"
+  rest_api_id = "${aws_api_gateway_rest_api.api_gateway.id}"
+  parent_id = "${aws_api_gateway_rest_api.api_gateway.root_resource_id}"
   path_part = "objects"
 }
 
@@ -157,12 +181,12 @@ module "get_lambda" {
   http_method = "GET"
   # Hack to allow us to not create iam resources with localstack
   # see https://github.com/hashicorp/terraform/issues/15281
-  lambda_role_arn = "${element(concat(aws_iam_role.test_app_lambda_role.*.arn, list("")), 0)}"
-  api_gateway_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-  api_gateway_execution_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}"
+  lambda_role_arn = "${element(concat(aws_iam_role.lambda_role.*.arn, list("")), 0)}"
+  api_gateway_id = "${aws_api_gateway_rest_api.api_gateway.id}"
+  api_gateway_execution_arn = "${aws_api_gateway_rest_api.api_gateway.execution_arn}"
   api_gateway_resource_id = "${aws_api_gateway_resource.objects_resource.id}"
   lambda_env_vars = {
-    DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
+    DYNAMO_TABLE = "${aws_dynamodb_table.db.name}"
   }
   manage_iam = "${var.manage_iam}"
 }
@@ -175,12 +199,12 @@ module "delete_lambda" {
   http_method = "DELETE"
   # Hack to allow us to not create iam resources with localstack
   # see https://github.com/hashicorp/terraform/issues/15281
-  lambda_role_arn = "${element(concat(aws_iam_role.test_app_lambda_role.*.arn, list("")), 0)}"
-  api_gateway_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-  api_gateway_execution_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}"
+  lambda_role_arn = "${element(concat(aws_iam_role.lambda_role.*.arn, list("")), 0)}"
+  api_gateway_id = "${aws_api_gateway_rest_api.api_gateway.id}"
+  api_gateway_execution_arn = "${aws_api_gateway_rest_api.api_gateway.execution_arn}"
   api_gateway_resource_id = "${aws_api_gateway_resource.objects_resource.id}"
   lambda_env_vars = {
-    DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
+    DYNAMO_TABLE = "${aws_dynamodb_table.db.name}"
   }
   manage_iam = "${var.manage_iam}"
 }
@@ -193,12 +217,12 @@ module "upsert_lambda" {
   http_method = "POST"
   # Hack to allow us to not create iam resources with localstack
   # see https://github.com/hashicorp/terraform/issues/15281
-  lambda_role_arn = "${element(concat(aws_iam_role.test_app_lambda_role.*.arn, list("")), 0)}"
-  api_gateway_id = "${aws_api_gateway_rest_api.test_app_gateway.id}"
-  api_gateway_execution_arn = "${aws_api_gateway_rest_api.test_app_gateway.execution_arn}"
+  lambda_role_arn = "${element(concat(aws_iam_role.lambda_role.*.arn, list("")), 0)}"
+  api_gateway_id = "${aws_api_gateway_rest_api.api_gateway.id}"
+  api_gateway_execution_arn = "${aws_api_gateway_rest_api.api_gateway.execution_arn}"
   api_gateway_resource_id = "${aws_api_gateway_resource.objects_resource.id}"
   lambda_env_vars = {
-    DYNAMO_TABLE = "${aws_dynamodb_table.test_app_db.name}"
+    DYNAMO_TABLE = "${aws_dynamodb_table.db.name}"
   }
   manage_iam = "${var.manage_iam}"
 }
