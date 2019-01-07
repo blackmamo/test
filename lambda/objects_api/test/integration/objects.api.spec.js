@@ -108,7 +108,7 @@ describe("objects api", function () {
         expect(response).to.have.status(200)
       })
 
-      it("should not resource location", function () {
+      it("should not have location header", function () {
         expect(response).to.not.have.header("Location")
       })
 
