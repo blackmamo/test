@@ -1,9 +1,0 @@
-// This test config adds the rewire plugin which the tests use
-{
-  "presets": [
-    [ "@babel/env", {
-      "targets": { "node": "8.10" }
-    } ]
-  ],
-  "plugins": [ "rewire" ]
-}

@@ -29,7 +29,7 @@ resource "aws_lambda_permission" "test_app_lambda_permission" {
   function_name = "${aws_lambda_function.test_app_lambda.arn}"
   principal = "apigateway.amazonaws.com"
 
-  source_arn = "${var.api_gateway_execution_arn}/*/${var.http_method}/objects"
+  source_arn = "${var.api_gateway_execution_arn}/*/${var.http_method}${var.api_gateway_resource_path}"
 }
 
 resource "aws_api_gateway_method" "objects_method" {

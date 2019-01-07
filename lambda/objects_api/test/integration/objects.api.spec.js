@@ -4,6 +4,10 @@ import * as fs from 'fs'
 
 var expect = chakram.expect;
 
+function getLocation(response){
+  return response.response.headers.location
+}
+
 describe("objects api", function () {
   let objectsUrl
 
@@ -30,7 +34,6 @@ describe("objects api", function () {
       })
 
       it("should return the sent body", function () {
-      console.log(JSON.stringify(response))
         expect(response).to.comprise.of.json({id:"cauliflower", baz: 2})
       })
 
@@ -43,12 +46,12 @@ describe("objects api", function () {
       })
 
       it("should be observable (in subsequent get)", function () {
-        return chakram.get(objectsUrl + response.headers.Location)
+        return chakram.get(objectsUrl + getLocation(response))
           .then(resp => expect(resp).to.comprise.of.json({id:"cauliflower", baz: 2}))
       })
 
       after("Cleanup resource", function(){
-        chakram.delete(objectsUrl + response.headers.Location)
+        return chakram.delete(objectsUrl + getLocation(response))
       })
     })
 
@@ -75,24 +78,30 @@ describe("objects api", function () {
       })
 
       it("should be observable (in subsequent get)", function () {
-        return chakram.get(objectsUrl + response.headers.Location)
+        return chakram.get(objectsUrl + getLocation(response))
           .then(resp => expect(resp).to.comprise.of.json({id:"broccoli", bar: 10}))
+      })
+
+      after("Cleanup resource", function(){
+        return chakram.delete(objectsUrl + getLocation(response))
       })
     })
 
     describe("Delete", function(){
-      let response,
+      let createResp, response
 
       before("Do a create and then update", function(){
         // initial create, followed by an update
         return chakram.post(objectsUrl, {id:"kholrabi", bob: "ross"})
-          .then(resp =>
-            chakram.delete(objectsUrl + resp.headers.Location, {id:"kholrabi", bar: 10}))
+          .then(resp => {
+            createResp = resp
+            return chakram.delete(objectsUrl + getLocation(resp))
+          })
           .then(resp => response = resp)
       })
 
       it("should return the old body", function () {
-        expect(response).to.comprise.of.json({id:"kholrabi", bar: 10})
+        expect(response).to.comprise.of.json({id:"kholrabi", bob: "ross"})
       })
 
       it("should return ok", function () {
@@ -104,8 +113,12 @@ describe("objects api", function () {
       })
 
       it("should not be observable (404 in subsequent get)", function () {
-        return chakram.get(objectsUrl + response.headers.Location)
-          .then(resp => expect(resp).to.comprise.of.json({id:"kholrabi", bar: 10}))
+        return chakram.get(objectsUrl + getLocation(createResp))
+          .then(resp => expect(resp).to.have.status(404))
+      })
+
+      after("Cleanup resource", function(){
+        return chakram.delete(objectsUrl + getLocation(createResp))
       })
     })
   })

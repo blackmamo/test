@@ -6,17 +6,19 @@
   "scripts": {
     "test": "npx mocha --require @babel/register \"./test/unit/**/*.spec.js\"",
     "build": "npx webpack",
-    "integration-tests": "npx mocha --require @babel/register \"./test/integration/**/*.spec.js\""
+    "integration-test": "npx mocha --require @babel/register \"./test/integration/**/*.spec.js\""
   },
   "author": "Matthew Amos",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
+    "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.2.3",
     "@babel/register": "^7.0.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-rewire": "^1.2.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "chakram": "^1.5.0",
     "mocha": "^5.2.0",
     "sinon": "^7.2.2",

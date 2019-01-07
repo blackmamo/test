@@ -9,6 +9,7 @@ module.exports =  {
     upsert: './src/upsert.js'
   },
   mode: 'production',
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {

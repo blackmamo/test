@@ -88,18 +88,19 @@ module "get_lambda" {
   lambda_source_file = "get.js"
   lambda_source_dir = "./lambda/objects_api/dist/"
   http_method = "GET"
-  # Hack to allow us to not create iam resources with localstack
-  # see https://github.com/hashicorp/terraform/issues/15281
   lambda_role_arn = "${var.lambda_role_arn}"
   api_gateway_id = "${var.api_gateway_id}"
   api_gateway_execution_arn = "${var.api_gateway_execution_arn}"
   api_gateway_resource_id = "${aws_api_gateway_resource.object_resource.id}"
+  api_gateway_resource_path = "${aws_api_gateway_resource.object_resource.path}"
   request_parameters = {
     "method.request.path.objectId" = true
   }
   lambda_env_vars = {
     DYNAMO_TABLE = "${aws_dynamodb_table.db.name}"
   }
+  # Hack to allow us to not create iam resources with localstack
+  # see https://github.com/hashicorp/terraform/issues/15281
   manage_iam = "${var.manage_iam}"
 }
 
@@ -108,18 +109,19 @@ module "delete_lambda" {
   lambda_source_file = "delete.js"
   lambda_source_dir = "./lambda/objects_api/dist/"
   http_method = "DELETE"
-  # Hack to allow us to not create iam resources with localstack
-  # see https://github.com/hashicorp/terraform/issues/15281
   lambda_role_arn = "${var.lambda_role_arn}"
   api_gateway_id = "${var.api_gateway_id}"
   api_gateway_execution_arn = "${var.api_gateway_execution_arn}"
   api_gateway_resource_id = "${aws_api_gateway_resource.object_resource.id}"
+  api_gateway_resource_path = "${aws_api_gateway_resource.object_resource.path}"
   request_parameters = {
     "method.request.path.objectId" = true
   }
   lambda_env_vars = {
     DYNAMO_TABLE = "${aws_dynamodb_table.db.name}"
   }
+  # Hack to allow us to not create iam resources with localstack
+  # see https://github.com/hashicorp/terraform/issues/15281
   manage_iam = "${var.manage_iam}"
 }
 
@@ -128,15 +130,16 @@ module "upsert_lambda" {
   lambda_source_file = "upsert.js"
   lambda_source_dir = "./lambda/objects_api/dist/"
   http_method = "POST"
-  # Hack to allow us to not create iam resources with localstack
-  # see https://github.com/hashicorp/terraform/issues/15281
   lambda_role_arn = "${var.lambda_role_arn}"
   api_gateway_id = "${var.api_gateway_id}"
   api_gateway_execution_arn = "${var.api_gateway_execution_arn}"
   api_gateway_resource_id = "${aws_api_gateway_resource.objects_resource.id}"
+  api_gateway_resource_path = "${aws_api_gateway_resource.objects_resource.path}"
   request_parameters = {}
   lambda_env_vars = {
     DYNAMO_TABLE = "${aws_dynamodb_table.db.name}"
   }
+  # Hack to allow us to not create iam resources with localstack
+  # see https://github.com/hashicorp/terraform/issues/15281
   manage_iam = "${var.manage_iam}"
 }

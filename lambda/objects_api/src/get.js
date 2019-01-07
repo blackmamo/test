@@ -3,15 +3,15 @@
 import * as DynamoDB from 'aws-sdk/clients/dynamodb'
 var docClient = new DynamoDB.DocumentClient()
 
-exports.handler = function(event, context, callback) {
-  docClient.get(
-    {Key: {id: event.queryStringParameters.id}, TableName: process.env.DYNAMO_TABLE},
-    (err, data) => {
-      if (err) {
-        callback(new Error("Error querying db"))
-      } else {
-      console.log()
-        callback(null, {statusCode: 200, body: JSON.stringify(data.Item)})
-      }
-    });
+exports.handler = async function(event, context) {
+  return docClient
+    .get({Key: {id: event.pathParameters.objectId}, TableName: process.env.DYNAMO_TABLE})
+    .promise()
+    .then(
+      data => {
+        console.log(JSON.stringify(data))
+        return {statusCode: data.Item ? 200 : 404, body: JSON.stringify(data.Item)}
+      },
+      err => {throw new Error("Error querying db")}
+    )
 }

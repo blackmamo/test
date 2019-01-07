@@ -6,7 +6,7 @@
   "scripts": {
     "test": "lerna run test",
     "build": "lerna run build",
-    "integration-tests": "lerna run integration-tests"
+    "integration-test": "lerna run integration-test"
   },
   "repository": {
     "type": "git",
@@ -14,6 +14,10 @@
   },
   "author": "Matthew Amos",
   "devDependencies": {
+    "babel-plugin-source-map-support": "^2.0.1",
     "lerna": "^2.8.0"
+  },
+  "dependencies": {
+    "source-map-support": "^0.5.9"
   }
 }

@@ -1,8 +1,9 @@
-// Our lambdas target the node 8.10 AWS Lambda runtime, we use babel env to ensure compliance
 {
   "presets": [
     [ "@babel/env", {
       "targets": { "node": "8.10" }
     } ]
-  ]
+  ],
+  // TODO these only in dev mode
+  "plugins": [ "rewire", "source-map-support" ]
 }

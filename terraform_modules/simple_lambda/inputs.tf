@@ -26,6 +26,10 @@ variable "api_gateway_resource_id" {
   type = "string"
 }
 
+variable "api_gateway_resource_path" {
+  type = "string"
+}
+
 variable "lambda_env_vars" {
   type = "map"
 }

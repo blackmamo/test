@@ -20,7 +20,7 @@ phases:
       - npm run-script test
       - terraform workspace select $CODEBUILD_RESOLVED_SOURCE_VERSION || terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
       - terraform apply -auto-approve
-      - npm run-script integration-tests
+      - npm run-script integration-test
     finally:
       - terraform destroy -auto-approve
       - terraform workspace select default
