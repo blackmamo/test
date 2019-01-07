@@ -1,13 +1,9 @@
-TOOO DELTE
-
 const path = require("path");
 const webpack = require("webpack");
 
 module.exports = {
   entry: {
-//    delete: "./src/delete.js",
-//    get: "./src/get.js",
-    upsert: "./src/upsert.js"
+    app: "./src/App.js"
   },
   mode: "development",
   module: {
@@ -17,8 +13,7 @@ module.exports = {
         exclude: /(node_modules|bower_components)/,
         loader: "babel-loader",
         options: {
-          presets: ["@babel/env"],
-          //plugins: [ 'source-map-support', 'babel-plugin-rewire' ]
+          presets: ["@babel/env"]
         },
       },
       {
@@ -42,7 +37,6 @@ module.exports = {
     publicPath: "/dist/",
     filename: "[name].js"
   },
-  //target:"node",
   externals: {
     "aws-sdk": "aws-sdk"
   }

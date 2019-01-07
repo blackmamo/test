@@ -2,6 +2,10 @@ variable "lambda_source_file" {
   type = "string"
 }
 
+variable "lambda_source_dir" {
+  type = "string"
+}
+
 variable "http_method" {
   type = "string"
 }
@@ -28,4 +32,8 @@ variable "lambda_env_vars" {
 
 variable "manage_iam" {
   type = "string"
+}
+
+variable "request_parameters" {
+  type = "map"
 }

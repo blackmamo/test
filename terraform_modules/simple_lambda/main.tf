@@ -1,7 +1,11 @@
+# This module enables you to setup lambdas with their concommitant gateway infrastructure
+# note that more than one lambda may be associated with a REST resource, so those are not setup
+# here
+
 data "archive_file" "get_zip" {
   type = "zip"
-  source_file = "dist/${var.lambda_source_file}"
-  output_path = "dist/${replace(var.lambda_source_file, ".js", ".zip")}"
+  source_file = "${var.lambda_source_dir}/${var.lambda_source_file}"
+  output_path = "${var.lambda_source_dir}/${replace(var.lambda_source_file, ".js", ".zip")}"
 }
 
 resource "aws_lambda_function" "test_app_lambda" {
@@ -33,6 +37,8 @@ resource "aws_api_gateway_method" "objects_method" {
   resource_id = "${var.api_gateway_resource_id}"
   http_method = "${var.http_method}"
   authorization = "NONE"
+
+  request_parameters = "${var.request_parameters}"
 }
 
 resource "aws_api_gateway_integration" "test_app_get_integration" {

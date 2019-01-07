@@ -1,0 +1,8 @@
+This directory is for all of the backend modules we will have.
+
+The intention of splitting up packages here is that we can subdivide the app into multiple apis e.g.
+an interview scheduling api, candidate api, job api. Each can be managed and built separately. Also
+when layers are supported by terraform.
+
+If things grow and the build slows down too much, we may want to investigate ways to only build and
+test (and deploy) things that actually changed

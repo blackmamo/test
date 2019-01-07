@@ -1,0 +1,31 @@
+{
+  "name": "test-project-object-api",
+  "version": "0.0.1",
+  "description": "Test lambda project to prove the build setup works",
+  "private": true,
+  "scripts": {
+    "test": "npx mocha --require @babel/register \"./test/unit/**/*.spec.js\"",
+    "build": "npx webpack",
+    "integration-tests": "npx mocha --require @babel/register \"./test/integration/**/*.spec.js\""
+  },
+  "author": "Matthew Amos",
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/register": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-rewire": "^1.2.0",
+    "chai": "^4.2.0",
+    "chakram": "^1.5.0",
+    "mocha": "^5.2.0",
+    "sinon": "^7.2.2",
+    "sinon-chai": "^3.3.0",
+    "sinon-test": "^2.4.0",
+    "webpack": "^4.28.3",
+    "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.382.0"
+  }
+}

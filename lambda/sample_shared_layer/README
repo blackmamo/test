@@ -1,0 +1,6 @@
+I had hoped to illustrate how to use terraform to upload layers.
+We probably wont need this feature for a while, which is good, because:
+
+https://github.com/terraform-providers/terraform-provider-aws/issues/6651
+
+We have to wait a little while for terraform to implement this new feature.
