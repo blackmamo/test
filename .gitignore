@@ -12,3 +12,6 @@ dist
 node_modules
 *.iml
 .idea
+
+terraform_outputs.json
+lerna-debug.log

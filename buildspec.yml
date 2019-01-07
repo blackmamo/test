@@ -11,15 +11,17 @@ phases:
       - terraform --version
       # TODO create a new image that contains terraform to avoid installing every time
       - terraform init
+      - npm install -g lerna
   pre_build:
     commands:
-      - npm install
+      - lerna bootstrap
   build:
     commands:
-      - npm run-script build
+      - lerna run build
+      - lerna run test
       - terraform workspace select $CODEBUILD_RESOLVED_SOURCE_VERSION || terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
       - terraform apply -auto-approve
-      - npm run-script integration-tests
+      - lerna run integration-test
     finally:
       - terraform destroy -auto-approve
       - terraform workspace select default

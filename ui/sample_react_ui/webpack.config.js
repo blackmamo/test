@@ -1,22 +1,20 @@
-TOOO DELTE
-
-const path = require("path");
-const webpack = require("webpack");
+const path = require("path")
+const webpack = require("webpack")
+var HtmlWebpackPlugin = require('html-webpack-plugin')
+const ReactRootPlugin = require('html-webpack-root-plugin')
 
 module.exports = {
   entry: {
-    upsert: "./src/upsert.js"
+    index: "./src/index.js"
   },
   mode: "development",
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
         exclude: /(node_modules|bower_components)/,
-        loader: "babel-loader",
-        options: {
-          presets: ["@babel/env"]
-        },
+        loader: "babel-loader"
       },
       {
         test: /\.css$/,
@@ -36,10 +34,11 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, "dist/"),
-    publicPath: "/dist/",
+    publicPath: "/",
     filename: "[name].js"
   },
+  plugins: [new HtmlWebpackPlugin(), new ReactRootPlugin()],
   externals: {
     "aws-sdk": "aws-sdk"
   }
-};
+}

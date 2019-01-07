@@ -1,0 +1,5 @@
+This directory is for all of the front end applications we will have.
+
+The intention of splitting this up is that we can maintain independently different applications that
+use the kittycat infrastructure. e.g. we may have a separate app for HR, hiring managers, an
+analytics app and later on even candidates and recruitment consultants. We fully

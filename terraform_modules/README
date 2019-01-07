@@ -1,0 +1,3 @@
+This folder is where we should add any new shared modules we need as our infrastructure grows
+and we start to split kitty cat into a number of separate apis, each with its own resources.
+Note that each api we have will act as a module in its own right

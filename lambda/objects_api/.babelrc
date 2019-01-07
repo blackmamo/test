@@ -1,0 +1,9 @@
+{
+  "presets": [
+    [ "@babel/env", {
+      "targets": { "node": "8.10" }
+    } ]
+  ],
+  // TODO these only in dev mode
+  "plugins": [ "rewire", "source-map-support" ]
+}
