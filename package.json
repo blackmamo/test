@@ -14,10 +14,6 @@
   },
   "author": "Matthew Amos",
   "devDependencies": {
-    "babel-plugin-source-map-support": "^2.0.1",
     "lerna": "^2.8.0"
-  },
-  "dependencies": {
-    "source-map-support": "^0.5.9"
   }
 }
