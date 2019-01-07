@@ -17,11 +17,11 @@ phases:
       - lerna bootstrap
   build:
     commands:
-      - npm run-script build
-      - npm run-script test
+      - lerna run build
+      - lerna run test
       - terraform workspace select $CODEBUILD_RESOLVED_SOURCE_VERSION || terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
       - terraform apply -auto-approve
-      - npm run-script integration-test
+      - lerna run integration-test
     finally:
       - terraform destroy -auto-approve
       - terraform workspace select default
