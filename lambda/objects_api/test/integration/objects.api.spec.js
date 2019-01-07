@@ -9,6 +9,7 @@ function getLocation(response){
 }
 
 describe("objects api", function () {
+  this.timeout(15000)
   let objectsUrl
 
   before(function (done) {
