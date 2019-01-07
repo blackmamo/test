@@ -11,6 +11,7 @@ phases:
       - terraform --version
       # TODO create a new image that contains terraform to avoid installing every time
       - terraform init
+      - npm install -g lerna
   pre_build:
     commands:
       - lerna bootstrap
