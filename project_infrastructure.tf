@@ -107,6 +107,6 @@ module "objects_api" {
 
 resource "local_file" "ouput_vars" {
   # Sorry - https://github.com/hashicorp/hcl/issues/211
-  content  = "${jsonencode(map("root_url", aws_api_gateway_deployment.test_app_gateway_deployment.invoke_url, "objects_path", module.objects_api.objects_path, "localstack", var.manage_iam, "front_end_url", module.front_end.website_endpoint))}"
+  content  = "${jsonencode(map("root_url", aws_api_gateway_deployment.test_app_gateway_deployment.invoke_url, "objects_path", module.objects_api.objects_path, "manage_iam", var.manage_iam, "front_end_url", module.front_end.website_endpoint))}"
   filename = "terraform_outputs.json"
 }

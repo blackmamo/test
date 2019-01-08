@@ -12,5 +12,9 @@ exports.handler = async function(event, context) {
     .promise()
     .then(
       data => ({statusCode: 200, body: JSON.stringify(data.Attributes)}),
-      err => {throw new Error("Error querying db")})
+      // suppress internal errors, but log them
+      err => {
+        console.log("Error performing delete: " + err)
+        throw new Error("Error deleting from db")
+      })
 }
