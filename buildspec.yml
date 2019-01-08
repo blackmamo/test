@@ -21,6 +21,7 @@ phases:
       - lerna run test
       - terraform workspace select $CODEBUILD_RESOLVED_SOURCE_VERSION || terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
       - terraform apply -auto-approve
+      - sleep 30
       - lerna run integration-test
     finally:
       #- terraform destroy -auto-approve
