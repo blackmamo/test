@@ -17,17 +17,19 @@ phases:
       - lerna bootstrap
   build:
     commands:
-      - lerna run build
-      - lerna run test
+      - npm run-script build
+      - npm run-script test
       - terraform workspace select $CODEBUILD_RESOLVED_SOURCE_VERSION || terraform workspace new $CODEBUILD_RESOLVED_SOURCE_VERSION
       - terraform apply -auto-approve
-      - sleep 30
-      - lerna run integration-test
+      # TODO integration tests can often fail if we don't wait here. It seems the IAM roles take time to propogate to the api gateway
+      # we should try and determine a method of waiting for them to actually apply, rather than have this (also try reducing from 15)
+      - sleep 15
+      - npm run-script integration-test
     finally:
-      #- terraform destroy -auto-approve
-      #- terraform workspace select default
-      #- terraform workspace delete $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - terraform destroy -auto-approve
+      - terraform workspace select default
+      - terraform workspace delete $CODEBUILD_RESOLVED_SOURCE_VERSION
   post_build:
     commands:
       # destroy per pr env
-      - if [ "`git rev-parse master`" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]; then echo "Promoting to QA" && (terraform workspace select qa || terraform workspace new qa) && terraform apply -auto-approve; fi
+      - if [ $CODEBUILD_BUILD_SUCCEEDING ] && [ "`git rev-parse master`" = "$CODEBUILD_RESOLVED_SOURCE_VERSION" ]; then echo "Promoting to QA" && (terraform workspace select qa || terraform workspace new qa) && terraform apply -auto-approve; fi
