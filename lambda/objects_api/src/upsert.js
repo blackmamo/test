@@ -23,7 +23,10 @@ exports.handler = async function(event, context) {
         headers: { "Location":  "/" + parsedBody.id },
         body: event.body
       }),
-      // suppress internal errors
-      err => {throw new Error("Error posting to db")}
+      // suppress internal errors, but log them
+      err => {
+        console.log("Error performing post: " + err)
+        throw new Error("Error posting to db")
+      }
     )
 }

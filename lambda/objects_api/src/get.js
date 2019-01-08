@@ -12,6 +12,10 @@ exports.handler = async function(event, context) {
         console.log(JSON.stringify(data))
         return {statusCode: data.Item ? 200 : 404, body: JSON.stringify(data.Item)}
       },
-      err => {throw new Error("Error querying db")}
+      // suppress internal errors, but log them
+      err => {
+        console.log("Error performing get: " + err)
+        throw new Error("Error querying db")
+      }
     )
 }
